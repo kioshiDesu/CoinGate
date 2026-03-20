@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: espressif/idf:release-4.4
+    container: espressif/idf:release-v4.4
     
     steps:
     - uses: actions/checkout@v4
