@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+#include "driver/gpio.h"
+#include "esp_err.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -18,8 +19,8 @@ static void coin_event_handler(const coin_event_t *event)
 {
     switch (event->type) {
         case COIN_EVENT_INSERTED:
-            ESP_LOGI(TAG, "Coin inserted! Session pulses: %lu", 
-                     coin_acceptor_get_session_pulses());
+            ESP_LOGI(TAG, "Coin inserted! Session pulses: %u", 
+                     (unsigned int)coin_acceptor_get_session_pulses());
             break;
         case COIN_EVENT_SUSPICIOUS:
             ESP_LOGW(TAG, "Suspicious coin activity detected");
@@ -134,8 +135,8 @@ void app_main(void)
         tick++;
         
         if (tick % 12 == 0) {
-            ESP_LOGD(TAG, "System running... | Pulses: %lu | MT: %s",
-                     coin_acceptor_get_session_pulses(),
+            ESP_LOGD(TAG, "System running... | Pulses: %u | MT: %s",
+                     (unsigned int)coin_acceptor_get_session_pulses(),
                      mikrotik_is_connected() ? "Connected" : "Disconnected");
         }
         

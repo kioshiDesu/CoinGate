@@ -358,7 +358,7 @@ esp_err_t mikrotik_create_voucher(const char *profile, uint32_t duration_seconds
     uint32_t timestamp = esp_timer_get_time() / 1000000;
     
     snprintf(out_voucher->username, sizeof(out_voucher->username), 
-             "user%lu%lu", timestamp, voucher_counter++);
+             "user%u%u", (unsigned int)timestamp, (unsigned int)voucher_counter++);
     
     static const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     for (int i = 0; i < 8; i++) {
