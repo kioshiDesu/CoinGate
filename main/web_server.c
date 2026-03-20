@@ -14,6 +14,7 @@
 
 static const char *TAG = "web_server";
 static httpd_handle_t s_server = NULL;
+#define FILE_PATH_MAX 256
 
 static const char *s_state_strings[] = {
     "DISCONNECTED", "CONNECTING", "LOGGING_IN", "CONNECTED", "ERROR"
@@ -104,25 +105,25 @@ static esp_err_t api_status_handler(httpd_req_t *req)
     int len = snprintf(response, sizeof(response),
         "{"
         "\"fw\":\"1.0.0\","
-        "\"uptime\":%lu,"
-        "\"heap\":%lu,"
+        "\"uptime\":%u,"
+        "\"heap\":%u,"
         "\"wifi\":%s,"
-        "\"pulses_session\":%lu,"
-        "\"pulses_total\":%lu,"
+        "\"pulses_session\":%u,"
+        "\"pulses_total\":%u,"
         "\"coin_en\":%s,"
         "\"rates\":%d,"
-        "\"cpp\":%lu,"
-        "\"min\":%lu,"
-        "\"max\":%lu,"
-        "\"rate_1m\":%lu,"
-        "\"suspicious\":%lu,"
+        "\"cpp\":%u,"
+        "\"min\":%u,"
+        "\"max\":%u,"
+        "\"rate_1m\":%u,"
+        "\"suspicious\":%u,"
         "\"cooldown\":%s,"
         "\"mt_conn\":%s,"
         "\"mt_state\":\"%s\","
-        "\"daily_vouchers\":%lu,"
-        "\"daily_pulses\":%lu,"
-        "\"total_vouchers\":%lu,"
-        "\"total_pulses\":%lu,"
+        "\"daily_vouchers\":%u,"
+        "\"daily_pulses\":%u,"
+        "\"total_vouchers\":%u,"
+        "\"total_pulses\":%u,"
         "\"setup_done\":%s"
         "}",
         uptime,
@@ -165,7 +166,7 @@ static esp_err_t api_rates_handler(httpd_req_t *req)
             if (rate) {
                 if (i > 0) offset += snprintf(response + offset, sizeof(response) - offset, ",");
                 offset += snprintf(response + offset, sizeof(response) - offset,
-                    "{\"id\":%d,\"coins\":%d,\"duration\":%lu,\"name\":\"%s\",\"enabled\":%s}",
+                    "{\"id\":%d,\"coins\":%d,\"duration\":%u,\"name\":\"%s\",\"enabled\":%s}",
                     i, rate->coins, rate->duration_seconds, rate->name,
                     rate->enabled ? "true" : "false");
             }
@@ -253,7 +254,7 @@ static esp_err_t api_voucher_handler(httpd_req_t *req)
             
             int len = snprintf(response, sizeof(response),
                 "{\"success\":true,\"username\":\"%s\",\"password\":\"%s\","
-                "\"duration\":%lu,\"coins\":%lu}",
+                "\"duration\":%u,\"coins\":%u}",
                 voucher.username, voucher.password, duration, coins);
             
             httpd_resp_set_type(req, "application/json");
@@ -280,8 +281,8 @@ static esp_err_t api_coin_handler(httpd_req_t *req)
     const char *match_name = best_rate ? best_rate->name : "Custom";
     
     int len = snprintf(response, sizeof(response),
-        "{\"pulses\":%lu,\"duration\":%lu,\"cpp\":%lu,"
-        "\"coins_value\":%lu,\"best_rate\":\"%s\",\"coin_enabled\":%s}",
+        "{\"pulses\":%u,\"duration\":%u,\"cpp\":%u,"
+        "\"coins_value\":%u,\"best_rate\":\"%s\",\"coin_enabled\":%s}",
         pulses, duration, cpp, pulses / cpp + (pulses % cpp ? 1 : 0),
         match_name,
         coin_acceptor_is_enabled() ? "true" : "false");
@@ -307,9 +308,9 @@ static esp_err_t api_config_handler(httpd_req_t *req)
     
     int len = snprintf(response, sizeof(response),
         "{"
-        "\"cpp\":%lu,"
-        "\"min\":%lu,"
-        "\"max\":%lu,"
+        "\"cpp\":%u,"
+        "\"min\":%u,"
+        "\"max\":%u,"
         "\"wifi_ssid\":\"%s\","
         "\"wifi_configured\":%s,"
         "\"mt_host\":\"%s\","
@@ -499,8 +500,8 @@ static esp_err_t api_history_handler(httpd_req_t *req)
         if (i > 0) offset += snprintf(response + offset, sizeof(response) - offset, ",");
         
         offset += snprintf(response + offset, sizeof(response) - offset,
-            "{\"username\":\"%s\",\"password\":\"%s\",\"duration\":%lu,"
-            "\"created_at\":%lu,\"pulses\":%lu}",
+            "{\"username\":\"%s\",\"password\":\"%s\",\"duration\":%u,"
+            "\"created_at\":%u,\"pulses\":%u}",
             history[i].username, history[i].password,
             history[i].duration_seconds, history[i].created_at,
             history[i].pulses_used);
@@ -661,11 +662,11 @@ static esp_err_t api_sales_handler(httpd_req_t *req)
     char response[512];
     int len = snprintf(response, sizeof(response),
         "{"
-        "\"total_vouchers\":%lu,"
-        "\"total_pulses\":%lu,"
-        "\"daily_vouchers\":%lu,"
-        "\"daily_pulses\":%lu,"
-        "\"last_reset\":%lu"
+        "\"total_vouchers\":%u,"
+        "\"total_pulses\":%u,"
+        "\"daily_vouchers\":%u,"
+        "\"daily_pulses\":%u,"
+        "\"last_reset\":%u"
         "}",
         stats.total_vouchers,
         stats.total_pulses,

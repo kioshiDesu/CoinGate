@@ -70,7 +70,7 @@ esp_err_t rate_config_load_from_nvs(void)
     }
     
     for (int i = 0; i < s_config.rate_count; i++) {
-        char key[16];
+        char key[32];
         snprintf(key, sizeof(key), "rate_%d", i);
         
         size_t size = sizeof(rate_t);
@@ -122,7 +122,7 @@ esp_err_t rate_config_save_to_nvs(void)
     }
     
     for (int i = 0; i < s_config.rate_count; i++) {
-        char key[16];
+        char key[32];
         snprintf(key, sizeof(key), "rate_%d", i);
         
         err = nvs_set_blob(nvs_handle, key, &s_config.rates[i], sizeof(rate_t));
