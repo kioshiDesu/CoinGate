@@ -1,0 +1,44 @@
+name: Build CoinGate Firmware
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: espressif/idf:release-4.4
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build firmware
+      env:
+        IDF_PATH: /opt/esp-idf
+      run: |
+        . /opt/esp-idf/export.sh
+        idf.py set-target esp32
+        idf.py build
+    
+    - name: Upload firmware artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: coingate-firmware
+        path: build/bootloader/bootloader.bin
+        retention-days: 5
+    
+    - name: Upload partition table
+      uses: actions/upload-artifact@v4
+      with:
+        name: coingate-partitions
+        path: build/partition_table/partition-table.bin
+        retention-days: 5
+    
+    - name: Upload app binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: coingate-app
+        path: build/coingate.bin
+        retention-days: 5

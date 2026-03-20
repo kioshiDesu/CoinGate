@@ -1,0 +1,532 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    min-height: 100vh;
+    color: #eee;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    padding: 30px 0;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: #00d4ff;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+}
+
+.subtitle {
+    color: #888;
+    margin-top: 5px;
+}
+
+.tabs {
+    display: flex;
+    gap: 5px;
+    background: rgba(255,255,255,0.05);
+    padding: 5px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 12px 15px;
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+}
+
+.tab-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+
+.tab-btn.active {
+    background: #00d4ff;
+    color: #1a1a2e;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+    padding: 25px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+h2 {
+    color: #00d4ff;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+}
+
+h3 {
+    color: #fff;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: rgba(0,0,0,0.3);
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-icon {
+    font-size: 2rem;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.stat-value.success {
+    color: #4caf50;
+}
+
+.stat-value.error {
+    color: #f44336;
+}
+
+.coin-display {
+    background: linear-gradient(135deg, #1a1a2e, #0f3460);
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.coin-info {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin: 20px 0;
+}
+
+.coin-amount, .coin-value {
+    display: flex;
+    flex-direction: column;
+}
+
+.coin-amount span, .coin-value span {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #00d4ff;
+}
+
+.coin-amount small, .coin-value small {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.coin-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.quick-stats {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.quick-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.quick-stat span {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.quick-stat strong {
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.sales-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.sales-card {
+    background: rgba(0,0,0,0.3);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.sales-numbers {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 15px;
+}
+
+.sales-numbers div {
+    display: flex;
+    flex-direction: column;
+}
+
+.sales-numbers span {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #00d4ff;
+}
+
+.sales-numbers small {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.voucher-generator {
+    background: rgba(0,0,0,0.3);
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.voucher-display {
+    background: linear-gradient(135deg, #1a1a2e, #0f3460);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.voucher-details {
+    display: grid;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.voucher-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.voucher-field label {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.voucher-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00d4ff;
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    border-radius: 8px;
+    font-family: monospace;
+}
+
+.settings-section {
+    background: rgba(0,0,0,0.2);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #00d4ff;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.danger-zone {
+    border: 1px solid #f44336;
+}
+
+.danger-zone h3 {
+    color: #f44336;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: #00d4ff;
+    color: #1a1a2e;
+}
+
+.btn-primary:hover {
+    background: #00b8e6;
+}
+
+.btn-secondary {
+    background: #555;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #666;
+}
+
+.btn-warning {
+    background: #ff9800;
+    color: #fff;
+}
+
+.btn-warning:hover {
+    background: #f57c00;
+}
+
+.btn-danger {
+    background: #f44336;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #d32f2f;
+}
+
+.btn-lg {
+    padding: 15px 35px;
+    font-size: 1.1rem;
+}
+
+.history-list {
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.history-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr 80px 100px;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    align-items: center;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-item .username {
+    font-family: monospace;
+    color: #00d4ff;
+}
+
+.history-item .password {
+    font-family: monospace;
+    color: #4caf50;
+}
+
+.history-item .duration {
+    color: #888;
+}
+
+.history-item .time {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.empty-state {
+    text-align: center;
+    color: #666;
+    padding: 40px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #1a1a2e;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 400px;
+    text-align: center;
+}
+
+.modal-content h2 {
+    margin-bottom: 15px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.wizard {
+    background: rgba(255,255,255,0.05);
+    padding: 40px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.wizard-step {
+    display: none;
+}
+
+.wizard-step.active {
+    display: block;
+}
+
+.wizard-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.wizard form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #555;
+    font-size: 0.8rem;
+}
+
+@media (max-width: 600px) {
+    .tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+    
+    .tab-btn {
+        min-width: auto;
+        padding: 10px;
+        font-size: 0.8rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .coin-info {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .history-item {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+}
