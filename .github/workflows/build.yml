@@ -25,23 +25,15 @@ jobs:
       with:
         python-version: '3.10'
     
-    - name: Install Python dependencies
+    - name: Install ESP-IDF
       run: |
         pip install --upgrade pip setuptools wheel
-        pip install pyyaml
-        pip install -r $IDF_PATH/requirements.txt
-        
-    - name: Install ESP-IDF tools
-      env:
-        IDF_PATH: ${{ github.workspace }}/esp-idf
-      run: |
-        $IDF_PATH/install.sh
+        ./esp-idf/install.sh
+        pip install -r ./esp-idf/requirements.txt
     
     - name: Build firmware
-      env:
-        IDF_PATH: ${{ github.workspace }}/esp-idf
       run: |
-        . $IDF_PATH/export.sh
+        . ./esp-idf/export.sh
         idf.py set-target esp32
         idf.py build
     
