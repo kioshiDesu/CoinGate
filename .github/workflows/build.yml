@@ -1,59 +1,56 @@
-name: Build CoinGate Firmware
+name: Build ESP32 Firmware
+
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
+  workflow_dispatch:  # allows manual trigger
+
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Checkout ESP-IDF
-      uses: actions/checkout@v4
-      with:
-        repository: espressif/esp-idf
-        ref: v4.4.4
-        path: esp-idf
-        submodules: recursive
-    
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-    
-    - name: Install ESP-IDF
-      run: |
-        pip install --upgrade pip setuptools wheel
-        ./esp-idf/install.sh
-        pip install -r ./esp-idf/requirements.txt
-    
-    - name: Build firmware
-      run: |
-        . ./esp-idf/export.sh
-        idf.py set-target esp32
-        idf.py build
-    
-    - name: Upload firmware artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: coingate-firmware
-        path: build/bootloader/bootloader.bin
-        retention-days: 5
-    
-    - name: Upload partition table
-      uses: actions/upload-artifact@v4
-      with:
-        name: coingate-partitions
-        path: build/partition_table/partition-table.bin
-        retention-days: 5
-    
-    - name: Upload app binary
-      uses: actions/upload-artifact@v4
-      with:
-        name: coingate-app
-        path: build/coingate.bin
-        retention-days: 5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+
+      - name: Install ESP-IDF dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+
+
+      - name: Get ESP-IDF (v4.4)
+        run: |
+          git clone --recursive --depth=1 --branch v4.4 https://github.com/espressif/esp-idf.git
+          cd esp-idf
+          ./install.sh
+          echo "IDF_PATH=$(pwd)" >> $GITHUB_ENV
+
+
+      - name: Build firmware
+        run: |
+          source $IDF_PATH/export.sh
+          idf.py set-target esp32
+          idf.py build
+
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: |
+            build/*.bin
+            build/bootloader/bootloader.bin
+            build/partition_table/partition-table.bin
