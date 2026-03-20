@@ -3,14 +3,7 @@ name: Build ESP32 Firmware
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release version (e.g., v1.0.0)'
-        required: false
-        type: string
 
 jobs:
   build:
@@ -27,20 +20,10 @@ jobs:
           idf.py set-target esp32
           idf.py build
 
-      - name: Get firmware version
-        id: version
-        run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            echo "tag=${{ inputs.version }}" >> $GITHUB_OUTPUT
-          else
-            TAG=v$(date +%Y%m%d-%H%M%S)
-            echo "tag=$TAG" >> $GITHUB_OUTPUT
-          fi
-
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: coingate-firmware-${{ steps.version.outputs.tag }}
+          name: coingate-firmware
           path: |
             build/bootloader/bootloader.bin
             build/partition_table/partition-table.bin
@@ -49,7 +32,6 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && inputs.version != ''
     permissions:
       contents: write
 
@@ -57,14 +39,21 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: coingate-firmware-${{ inputs.version }}
+          name: coingate-firmware
           path: artifacts
+
+      - name: Delete existing release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_names: coingate-latest
+          delete: true
+        ignore_errors: true
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.version }}
-          name: CoinGate Firmware ${{ inputs.version }}
+          tag_name: coingate-latest
+          name: CoinGate Firmware (Latest Build)
           draft: false
           prerelease: false
           generate_release_notes: true
