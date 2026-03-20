@@ -29,6 +29,12 @@ jobs:
       run: |
         pip install pyyaml
         
+    - name: Install ESP-IDF tools
+      env:
+        IDF_PATH: ${{ github.workspace }}/esp-idf
+      run: |
+        $IDF_PATH/install.sh
+    
     - name: Build firmware
       env:
         IDF_PATH: ${{ github.workspace }}/esp-idf
