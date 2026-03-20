@@ -47,7 +47,6 @@ jobs:
         with:
           tag_names: coingate-latest
           delete: true
-        ignore_errors: true
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
