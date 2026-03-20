@@ -1,4 +1,5 @@
 #include "anti_abuse.h"
+#include "esp_attr.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include <string.h>
@@ -46,7 +47,7 @@ static bool check_rate_limit(void)
     }
     
     if (s_pulses_in_current_minute >= ANTI_ABUSE_MAX_PULSES_PER_MINUTE) {
-        ESP_LOGW(TAG, "Rate limit exceeded: %lu pulses in current minute", 
+        ESP_LOGW(TAG, "Rate limit exceeded: %u pulses in current minute", 
                  s_pulses_in_current_minute);
         return false;
     }
@@ -62,7 +63,7 @@ static bool check_pulse_spacing(uint32_t current_time_ms)
         if (s_pulse_timestamps[i] > 0) {
             uint32_t spacing = current_time_ms - s_pulse_timestamps[i];
             if (spacing < min_spacing_ms && spacing > 0) {
-                ESP_LOGD(TAG, "Rapid pulse detected: %lu ms spacing", spacing);
+                ESP_LOGD(TAG, "Rapid pulse detected: %u ms spacing", spacing);
                 return false;
             }
         }

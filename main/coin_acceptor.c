@@ -66,12 +66,12 @@ static void coin_task(void *pvParameters)
     
     while (s_enabled) {
         if (xQueueReceive(s_event_queue, &event, pdMS_TO_TICKS(100)) == pdTRUE) {
-            ESP_LOGD(TAG, "Coin pulse detected, session: %lu, width: %lu ms", 
+            ESP_LOGD(TAG, "Coin pulse detected, session: %u, width: %u ms", 
                      s_session_pulses, event.pulse_width_ms);
             
             if (event.pulse_width_ms < COIN_PULSE_MIN_WIDTH_MS || 
                 event.pulse_width_ms > COIN_PULSE_MAX_WIDTH_MS) {
-                ESP_LOGW(TAG, "Suspicious pulse width: %lu ms", event.pulse_width_ms);
+                ESP_LOGW(TAG, "Suspicious pulse width: %u ms", event.pulse_width_ms);
                 event.type = COIN_EVENT_SUSPICIOUS;
             }
             
