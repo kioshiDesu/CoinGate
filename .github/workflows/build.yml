@@ -12,14 +12,30 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up ESP-IDF
-      uses: espressif/idf-action@v1
+    - name: Checkout ESP-IDF
+      uses: actions/checkout@v4
       with:
-        idf-version: v4.4.4
-        target: esp32
+        repository: espressif/esp-idf
+        ref: v4.4.4
+        path: esp-idf
+        submodules: recursive
     
-    - name: Build firmware
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install Python dependencies
       run: |
+        python -m pip install --upgrade pip
+        pip install pyyaml
+        
+    - name: Build firmware
+      env:
+        IDF_PATH: ${{ github.workspace }}/esp-idf
+      run: |
+        . $IDF_PATH/export.sh
+        idf.py set-target esp32
         idf.py build
     
     - name: Upload firmware artifact
