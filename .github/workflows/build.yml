@@ -27,7 +27,9 @@ jobs:
     
     - name: Install Python dependencies
       run: |
+        pip install --upgrade pip setuptools wheel
         pip install pyyaml
+        pip install -r $IDF_PATH/requirements.txt
         
     - name: Install ESP-IDF tools
       env:
