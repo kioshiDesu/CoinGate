@@ -107,11 +107,14 @@ void app_main(void)
         ESP_LOGI(TAG, "WiFi manager started");
     }
 
+    vTaskDelay(pdMS_TO_TICKS(2000));
+
     ret = web_server_start();
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Web server start failed: %s", esp_err_to_name(ret));
     } else {
         ESP_LOGI(TAG, "Web server started");
+        ESP_LOGI(TAG, "Access web interface at http://192.168.4.1");
     }
 
     ret = coin_acceptor_start();
@@ -127,7 +130,6 @@ void app_main(void)
     }
 
     ESP_LOGI(TAG, "CoinGate initialized successfully!");
-    ESP_LOGI(TAG, "Access web interface at setup AP or configured IP");
 
     uint32_t tick = 0;
     while (1) {
