@@ -36,17 +36,23 @@ jobs:
       contents: write
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Delete existing tag
+        run: git push origin :refs/tags/coingate-latest || true
+
+      - name: Create new tag
+        run: git tag -f coingate-latest
+
+      - name: Push tag
+        run: git push origin coingate-latest --force
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: coingate-firmware
           path: artifacts
-
-      - name: Delete existing release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_names: coingate-latest
-          delete: true
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
