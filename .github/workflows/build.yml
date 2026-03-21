@@ -59,7 +59,7 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
-          overwrite: true
+          overwrite_files: true
           files: |
             artifacts/bootloader.bin
             artifacts/partition-table.bin
