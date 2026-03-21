@@ -14,6 +14,8 @@ idf_component_register(SRCS
 set(WEB_INTERFACE_DIR ${CMAKE_SOURCE_DIR}/web_interface)
 set(SPIFFS_IMAGE_DIR ${CMAKE_BINARY_DIR}/spiffs_image)
 set(SPIFFS_PARTITION_SIZE 0x10000)
+set(SPIFFS_PAGE_SIZE 256)
+set(SPIFFS_BLOCK_SIZE 4096)
 
 # Create directory for SPIFFS files
 file(MAKE_DIRECTORY ${SPIFFS_IMAGE_DIR})
@@ -31,6 +33,8 @@ if(EXISTS ${WEB_INTERFACE_DIR})
             ${SPIFFS_PARTITION_SIZE}
             ${SPIFFS_IMAGE_DIR}
             ${CMAKE_BINARY_DIR}/spiffs.bin
+            --page-size ${SPIFFS_PAGE_SIZE}
+            --block-size ${SPIFFS_BLOCK_SIZE}
         DEPENDS ${WEB_FILES}
         COMMENT "Creating SPIFFS image from web_interface"
         VERBATIM
