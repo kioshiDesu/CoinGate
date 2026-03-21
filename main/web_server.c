@@ -51,30 +51,36 @@ static esp_err_t serve_file(httpd_req_t *req, const char *file_path)
 
 static esp_err_t get_file_handler(httpd_req_t *req)
 {
+    char filepath[FILE_PATH_MAX];
+    char full_uri[FILE_PATH_MAX];
+
+    strncpy(full_uri, req->uri, sizeof(full_uri) - 1);
+
     // Skip API routes - they should be handled by specific handlers
-    if (strncmp(req->uri, "/api", 4) == 0) {
+    if (strncmp(full_uri, "/api", 4) == 0) {
         httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "API endpoint not found");
         return ESP_FAIL;
     }
 
-    char filepath[FILE_PATH_MAX];
-
-    if (strcmp(req->uri, "/") == 0 || strcmp(req->uri, "/setup") == 0) {
+    // For root or setup, serve index.html
+    if (strcmp(full_uri, "/") == 0 || strcmp(full_uri, "/setup") == 0) {
         strcpy(filepath, "/spiffs/index.html");
     } else {
-        strcpy(filepath, "/spiffs");
-        strcat(filepath, req->uri);
+        // Build full path and try to serve the file
+        snprintf(filepath, sizeof(filepath), "/spiffs%s", full_uri);
+        
+        struct stat st;
+        if (stat(filepath, &st) == -1) {
+            // File not found - serve index.html (SPA fallback)
+            ESP_LOGW(TAG, "File not found: %s, serving index.html", filepath);
+            strcpy(filepath, "/spiffs/index.html");
+        }
     }
 
-    struct stat st;
-    if (stat(filepath, &st) == -1) {
-        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "File not found");
-        return ESP_FAIL;
-    }
-
-    const char *ext = strrchr(req->uri, '.');
+    // Set content type based on file
+    const char *ext = strrchr(filepath, '.');
     if (ext) {
-        if (strcmp(ext, ".html") == 0 || strcmp(ext, ".htm") == 0) {
+        if (strcmp(ext, ".html") == 0) {
             httpd_resp_set_type(req, "text/html");
         } else if (strcmp(ext, ".css") == 0) {
             httpd_resp_set_type(req, "text/css");
@@ -696,11 +702,7 @@ static esp_err_t api_sales_reset_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-static const httpd_uri_t get_root = {
-    .uri = "/", .method = HTTP_GET, .handler = get_file_handler
-};
-
-static const httpd_uri_t get_file = {
+static const httpd_uri_t get_any = {
     .uri = "/*", .method = HTTP_GET, .handler = get_file_handler
 };
 
@@ -782,10 +784,7 @@ httpd_handle_t start_webserver(void)
         return NULL;
     }
 
-    // Register root handler FIRST
-    httpd_register_uri_handler(s_server, &get_root);
-
-    // Register API handlers (specific routes)
+    // Register API handlers FIRST (must be before catch-all)
     httpd_register_uri_handler(s_server, &api_status);
     httpd_register_uri_handler(s_server, &api_rates);
     httpd_register_uri_handler(s_server, &api_voucher);
@@ -804,8 +803,8 @@ httpd_handle_t start_webserver(void)
     httpd_register_uri_handler(s_server, &api_sales);
     httpd_register_uri_handler(s_server, &api_sales_reset);
 
-    // Register catch-all handler LAST (for static files like /style.css, /script.js)
-    httpd_register_uri_handler(s_server, &get_file);
+    // Register catch-all handler LAST (serves all static files and SPA fallback)
+    httpd_register_uri_handler(s_server, &get_any);
 
     ESP_LOGI(TAG, "Web server started");
     return s_server;
