@@ -4,7 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CoinGate - Admin Panel</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: #eee; }
+.container { max-width: 900px; margin: 0 auto; padding: 20px; }
+header { text-align: center; padding: 30px 0; }
+header h1 { font-size: 2.5rem; color: #00d4ff; text-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+.subtitle { color: #888; margin-top: 5px; }
+.tabs { display: flex; gap: 5px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn { flex: 1; min-width: 100px; padding: 12px 15px; background: transparent; border: none; color: #888; cursor: pointer; border-radius: 8px; transition: all 0.3s; font-size: 0.9rem; }
+.tab-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.tab-btn.active { background: #00d4ff; color: #1a1a2e; font-weight: bold; }
+.tab-content { display: none; background: rgba(255,255,255,0.05); border-radius: 15px; padding: 25px; }
+.tab-content.active { display: block; }
+h2 { color: #00d4ff; margin-bottom: 20px; font-size: 1.3rem; }
+h3 { color: #fff; margin-bottom: 15px; font-size: 1.1rem; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+.stat-card { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; display: flex; align-items: center; gap: 15px; }
+.stat-icon { font-size: 2rem; }
+.stat-info { display: flex; flex-direction: column; }
+.stat-label { color: #888; font-size: 0.85rem; }
+.stat-value { font-size: 1.2rem; font-weight: bold; color: #fff; }
+.stat-value.success { color: #4caf50; }
+.stat-value.error { color: #f44336; }
+.coin-display { background: linear-gradient(135deg, #1a1a2e, #0f3460); padding: 25px; border-radius: 15px; margin-bottom: 20px; text-align: center; }
+.coin-info { display: flex; justify-content: center; gap: 50px; margin: 20px 0; }
+.coin-amount, .coin-value { display: flex; flex-direction: column; }
+.coin-amount span, .coin-value span { font-size: 3rem; font-weight: bold; color: #00d4ff; }
+.coin-amount small, .coin-value small { color: #888; font-size: 0.9rem; }
+.coin-actions { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
+.quick-stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; }
+.quick-stat { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.quick-stat span { color: #888; font-size: 0.85rem; }
+.quick-stat strong { color: #fff; font-size: 1.1rem; }
+.sales-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+.sales-card { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; text-align: center; }
+.sales-numbers { display: flex; justify-content: space-around; margin-top: 15px; }
+.sales-numbers div { display: flex; flex-direction: column; }
+.sales-numbers span { font-size: 2rem; font-weight: bold; color: #00d4ff; }
+.sales-numbers small { color: #888; font-size: 0.8rem; }
+.voucher-generator { background: rgba(0,0,0,0.3); padding: 25px; border-radius: 12px; margin-bottom: 20px; }
+.voucher-display { background: linear-gradient(135deg, #1a1a2e, #0f3460); padding: 30px; border-radius: 15px; text-align: center; }
+.voucher-details { display: grid; gap: 15px; margin: 20px 0; }
+.voucher-field { display: flex; flex-direction: column; gap: 5px; }
+.voucher-field label { color: #888; font-size: 0.85rem; }
+.voucher-value { font-size: 1.5rem; font-weight: bold; color: #00d4ff; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-family: monospace; }
+.settings-section { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; color: #aaa; font-size: 0.9rem; }
+.form-group input { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 1rem; }
+.form-group input:focus { outline: none; border-color: #00d4ff; }
+.form-row { display: flex; gap: 15px; }
+.form-row .form-group { flex: 1; }
+.form-actions { display: flex; gap: 10px; margin-top: 15px; }
+.danger-zone { border: 1px solid #f44336; }
+.danger-zone h3 { color: #f44336; }
+.actions { display: flex; gap: 10px; margin-bottom: 15px; }
+.btn { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: all 0.3s; }
+.btn-primary { background: #00d4ff; color: #1a1a2e; }
+.btn-primary:hover { background: #00b8e6; }
+.btn-secondary { background: #555; color: #fff; }
+.btn-secondary:hover { background: #666; }
+.btn-warning { background: #ff9800; color: #fff; }
+.btn-warning:hover { background: #f57c00; }
+.btn-danger { background: #f44336; color: #fff; }
+.btn-danger:hover { background: #d32f2f; }
+.btn-lg { padding: 15px 35px; font-size: 1.1rem; }
+.history-list { background: rgba(0,0,0,0.2); border-radius: 10px; max-height: 400px; overflow-y: auto; }
+.history-item { display: grid; grid-template-columns: 1fr 1fr 80px 100px; gap: 15px; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); align-items: center; }
+.history-item:last-child { border-bottom: none; }
+.history-item .username { font-family: monospace; color: #00d4ff; }
+.history-item .password { font-family: monospace; color: #4caf50; }
+.history-item .duration { color: #888; }
+.history-item .time { color: #666; font-size: 0.85rem; }
+.empty-state { text-align: center; color: #666; padding: 40px; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+.modal.active { display: flex; }
+.modal-content { background: #1a1a2e; padding: 30px; border-radius: 15px; max-width: 400px; text-align: center; }
+.modal-content h2 { margin-bottom: 15px; }
+.modal-actions { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
+.wizard { background: rgba(255,255,255,0.05); padding: 40px; border-radius: 15px; margin-bottom: 20px; }
+.wizard-step { display: none; }
+.wizard-step.active { display: block; }
+.wizard-nav { display: flex; justify-content: space-between; margin-top: 30px; }
+.wizard form { max-width: 400px; margin: 0 auto; }
+footer { text-align: center; padding: 20px; color: #555; font-size: 0.8rem; }
+@media (max-width: 600px) { .tabs { flex-wrap: nowrap; overflow-x: auto; } .tab-btn { min-width: auto; padding: 10px; font-size: 0.8rem; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .coin-info { flex-direction: column; gap: 20px; } .history-item { grid-template-columns: 1fr; gap: 5px; } .form-row { flex-direction: column; } }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -19,67 +105,31 @@
                 <p>This wizard will help you set up your coin-operated WiFi system.</p>
                 <button class="btn btn-primary" onclick="wizardNext()">Start Setup</button>
             </div>
-            
             <div class="wizard-step" data-step="2">
                 <h2>Step 1: WiFi Configuration</h2>
                 <form id="wizard-wifi">
-                    <div class="form-group">
-                        <label>WiFi SSID (network to connect to)</label>
-                        <input type="text" id="w-wifi-ssid" required placeholder="Your WiFi network name">
-                    </div>
-                    <div class="form-group">
-                        <label>WiFi Password</label>
-                        <input type="password" id="w-wifi-pass" placeholder="WiFi password">
-                    </div>
+                    <div class="form-group"><label>WiFi SSID</label><input type="text" id="w-wifi-ssid" required placeholder="Your WiFi network name"></div>
+                    <div class="form-group"><label>WiFi Password</label><input type="password" id="w-wifi-pass" placeholder="WiFi password"></div>
                 </form>
-                <div class="wizard-nav">
-                    <button class="btn btn-secondary" onclick="wizardPrev()">Back</button>
-                    <button class="btn btn-primary" onclick="wizardSaveWifi()">Next</button>
-                </div>
+                <div class="wizard-nav"><button class="btn btn-secondary" onclick="wizardPrev()">Back</button><button class="btn btn-primary" onclick="wizardSaveWifi()">Next</button></div>
             </div>
-            
             <div class="wizard-step" data-step="3">
                 <h2>Step 2: MikroTik Configuration</h2>
                 <form id="wizard-mikrotik">
-                    <div class="form-group">
-                        <label>Router IP Address</label>
-                        <input type="text" id="w-mt-host" required placeholder="192.168.1.1">
-                    </div>
-                    <div class="form-group">
-                        <label>API Port</label>
-                        <input type="number" id="w-mt-port" value="8728">
-                    </div>
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="w-mt-user" required value="admin">
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="w-mt-pass" required>
-                    </div>
+                    <div class="form-group"><label>Router IP Address</label><input type="text" id="w-mt-host" required placeholder="192.168.1.1"></div>
+                    <div class="form-group"><label>API Port</label><input type="number" id="w-mt-port" value="8728"></div>
+                    <div class="form-group"><label>Username</label><input type="text" id="w-mt-user" required value="admin"></div>
+                    <div class="form-group"><label>Password</label><input type="password" id="w-mt-pass" required></div>
                 </form>
-                <div class="wizard-nav">
-                    <button class="btn btn-secondary" onclick="wizardPrev()">Back</button>
-                    <button class="btn btn-primary" onclick="wizardSaveMikroTik()">Next</button>
-                </div>
+                <div class="wizard-nav"><button class="btn btn-secondary" onclick="wizardPrev()">Back</button><button class="btn btn-primary" onclick="wizardSaveMikroTik()">Next</button></div>
             </div>
-            
             <div class="wizard-step" data-step="4">
                 <h2>Step 3: Admin Password</h2>
                 <form id="wizard-password">
-                    <div class="form-group">
-                        <label>New Admin Password</label>
-                        <input type="password" id="w-admin-pass" required minlength="4" placeholder="Minimum 4 characters">
-                    </div>
-                    <div class="form-group">
-                        <label>Confirm Password</label>
-                        <input type="password" id="w-admin-pass2" required placeholder="Confirm password">
-                    </div>
+                    <div class="form-group"><label>New Admin Password</label><input type="password" id="w-admin-pass" required minlength="4" placeholder="Minimum 4 characters"></div>
+                    <div class="form-group"><label>Confirm Password</label><input type="password" id="w-admin-pass2" required placeholder="Confirm password"></div>
                 </form>
-                <div class="wizard-nav">
-                    <button class="btn btn-secondary" onclick="wizardPrev()">Back</button>
-                    <button class="btn btn-primary" onclick="wizardSavePassword()">Complete Setup</button>
-                </div>
+                <div class="wizard-nav"><button class="btn btn-secondary" onclick="wizardPrev()">Back</button><button class="btn btn-primary" onclick="wizardSavePassword()">Complete Setup</button></div>
             </div>
         </div>
 
@@ -94,244 +144,100 @@
         <main id="main-content">
             <section id="dashboard" class="tab-content active">
                 <h2>System Dashboard</h2>
-                
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">📶</div>
-                        <div class="stat-info">
-                            <span class="stat-label">WiFi Status</span>
-                            <span class="stat-value" id="stat-wifi">Loading...</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🔐</div>
-                        <div class="stat-info">
-                            <span class="stat-label">MikroTik</span>
-                            <span class="stat-value" id="stat-mt">Loading...</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">💰</div>
-                        <div class="stat-info">
-                            <span class="stat-label">Today's Vouchers</span>
-                            <span class="stat-value" id="stat-daily-v">0</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🪙</div>
-                        <div class="stat-info">
-                            <span class="stat-label">Coins Inserted</span>
-                            <span class="stat-value" id="stat-daily-p">0</span>
-                        </div>
-                    </div>
+                    <div class="stat-card"><div class="stat-icon">&#128422;</div><div class="stat-info"><span class="stat-label">WiFi Status</span><span class="stat-value" id="stat-wifi">Loading...</span></div></div>
+                    <div class="stat-card"><div class="stat-icon">&#128274;</div><div class="stat-info"><span class="stat-label">MikroTik</span><span class="stat-value" id="stat-mt">Loading...</span></div></div>
+                    <div class="stat-card"><div class="stat-icon">&#128176;</div><div class="stat-info"><span class="stat-label">Today's Vouchers</span><span class="stat-value" id="stat-daily-v">0</span></div></div>
+                    <div class="stat-card"><div class="stat-icon">&#129514;</div><div class="stat-info"><span class="stat-label">Coins Inserted</span><span class="stat-value" id="stat-daily-p">0</span></div></div>
                 </div>
-
                 <div class="coin-display">
                     <h3>Current Session</h3>
                     <div class="coin-info">
-                        <div class="coin-amount">
-                            <span id="current-pulses">0</span>
-                            <small>coins</small>
-                        </div>
-                        <div class="coin-value">
-                            <span id="current-duration">0 min</span>
-                            <small>time</small>
-                        </div>
+                        <div class="coin-amount"><span id="current-pulses">0</span><small>coins</small></div>
+                        <div class="coin-value"><span id="current-duration">0 min</span><small>time</small></div>
                     </div>
                     <div class="coin-actions">
                         <button class="btn btn-primary btn-lg" onclick="generateVoucher()">Generate Voucher</button>
                         <button class="btn btn-warning" onclick="resetSession()">Reset</button>
                     </div>
                 </div>
-
                 <div class="quick-stats">
-                    <div class="quick-stat">
-                        <span>Total Vouchers:</span>
-                        <strong id="total-v">0</strong>
-                    </div>
-                    <div class="quick-stat">
-                        <span>Total Coins:</span>
-                        <strong id="total-p">0</strong>
-                    </div>
-                    <div class="quick-stat">
-                        <span>Anti-Abuse:</span>
-                        <strong id="abuse-status">OK</strong>
-                    </div>
+                    <div class="quick-stat"><span>Total Vouchers:</span><strong id="total-v">0</strong></div>
+                    <div class="quick-stat"><span>Total Coins:</span><strong id="total-p">0</strong></div>
+                    <div class="quick-stat"><span>Anti-Abuse:</span><strong id="abuse-status">OK</strong></div>
                 </div>
             </section>
-
             <section id="sales" class="tab-content">
                 <h2>Sales Report</h2>
-                
                 <div class="sales-summary">
-                    <div class="sales-card">
-                        <h3>Today</h3>
-                        <div class="sales-numbers">
-                            <div><span id="sales-daily-v">0</span><small>vouchers</small></div>
-                            <div><span id="sales-daily-p">0</span><small>coins</small></div>
-                        </div>
-                    </div>
-                    <div class="sales-card">
-                        <h3>All Time</h3>
-                        <div class="sales-numbers">
-                            <div><span id="sales-total-v">0</span><small>vouchers</small></div>
-                            <div><span id="sales-total-p">0</span><small>coins</small></div>
-                        </div>
-                    </div>
+                    <div class="sales-card"><h3>Today</h3><div class="sales-numbers"><div><span id="sales-daily-v">0</span><small>vouchers</small></div><div><span id="sales-daily-p">0</span><small>coins</small></div></div></div>
+                    <div class="sales-card"><h3>All Time</h3><div class="sales-numbers"><div><span id="sales-total-v">0</span><small>vouchers</small></div><div><span id="sales-total-p">0</span><small>coins</small></div></div></div>
                 </div>
-
-                <div class="actions">
-                    <button class="btn btn-secondary" onclick="resetDailySales()">Reset Daily Count</button>
-                    <button class="btn btn-secondary" onclick="loadSales()">Refresh</button>
-                </div>
+                <div class="actions"><button class="btn btn-secondary" onclick="resetDailySales()">Reset Daily Count</button><button class="btn btn-secondary" onclick="loadSales()">Refresh</button></div>
             </section>
-
             <section id="vouchers" class="tab-content">
                 <h2>Voucher Generation</h2>
-                
                 <div class="voucher-generator">
-                    <div class="form-group">
-                        <label>Coins Inserted</label>
-                        <input type="number" id="voucher-coins" min="1" value="10">
-                    </div>
+                    <div class="form-group"><label>Coins Inserted</label><input type="number" id="voucher-coins" min="1" value="10"></div>
                     <button class="btn btn-primary btn-lg" onclick="generateManualVoucher()">Generate Voucher</button>
                 </div>
-
                 <div id="voucher-result" class="voucher-display" style="display: none;">
                     <h3>Voucher Created!</h3>
                     <div class="voucher-details">
-                        <div class="voucher-field">
-                            <label>Username</label>
-                            <div class="voucher-value" id="v-username"></div>
-                        </div>
-                        <div class="voucher-field">
-                            <label>Password</label>
-                            <div class="voucher-value" id="v-password"></div>
-                        </div>
-                        <div class="voucher-field">
-                            <label>Duration</label>
-                            <div class="voucher-value" id="v-duration"></div>
-                        </div>
+                        <div class="voucher-field"><label>Username</label><div class="voucher-value" id="v-username"></div></div>
+                        <div class="voucher-field"><label>Password</label><div class="voucher-value" id="v-password"></div></div>
+                        <div class="voucher-field"><label>Duration</label><div class="voucher-value" id="v-duration"></div></div>
                     </div>
                     <button class="btn btn-secondary" onclick="clearVoucher()">New Voucher</button>
                 </div>
             </section>
-
             <section id="settings" class="tab-content">
                 <h2>System Settings</h2>
-                
-                <div class="settings-section">
-                    <h3>WiFi Configuration</h3>
-                    <form id="wifi-form">
-                        <div class="form-group">
-                            <label>SSID</label>
-                            <input type="text" id="wifi-ssid" placeholder="WiFi network name">
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" id="wifi-pass" placeholder="WiFi password">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save WiFi</button>
-                    </form>
-                </div>
-
-                <div class="settings-section">
-                    <h3>MikroTik Router</h3>
-                    <form id="mikrotik-form">
-                        <div class="form-group">
-                            <label>Router IP</label>
-                            <input type="text" id="mt-host" placeholder="192.168.1.1">
-                        </div>
-                        <div class="form-group">
-                            <label>API Port</label>
-                            <input type="number" id="mt-port" value="8728">
-                        </div>
-                        <div class="form-group">
-                            <label>Username</label>
-                            <input type="text" id="mt-user">
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" id="mt-pass">
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Save</button>
-                            <button type="button" class="btn btn-secondary" onclick="testMikroTik()">Test Connection</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="settings-section">
-                    <h3>Coin Settings</h3>
-                    <form id="coin-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Coins per Pulse</label>
-                                <input type="number" id="coin-cpp" min="1" value="1">
-                            </div>
-                            <div class="form-group">
-                                <label>Minimum Coins</label>
-                                <input type="number" id="coin-min" min="1" value="1">
-                            </div>
-                            <div class="form-group">
-                                <label>Maximum Coins</label>
-                                <input type="number" id="coin-max" min="1" value="100">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save</button>
-                    </form>
-                </div>
-
-                <div class="settings-section">
-                    <h3>Security</h3>
-                    <form id="password-form">
-                        <div class="form-group">
-                            <label>Current Password</label>
-                            <input type="password" id="pass-current" required>
-                        </div>
-                        <div class="form-group">
-                            <label>New Password</label>
-                            <input type="password" id="pass-new" required minlength="4">
-                        </div>
-                        <div class="form-group">
-                            <label>Confirm New Password</label>
-                            <input type="password" id="pass-confirm" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Change Password</button>
-                    </form>
-                </div>
-
-                <div class="settings-section danger-zone">
-                    <h3>Danger Zone</h3>
-                    <button class="btn btn-warning" onclick="rebootSystem()">Reboot System</button>
-                    <button class="btn btn-danger" onclick="factoryReset()">Factory Reset</button>
-                </div>
+                <div class="settings-section"><h3>WiFi Configuration</h3><form id="wifi-form"><div class="form-group"><label>SSID</label><input type="text" id="wifi-ssid" placeholder="WiFi network name"></div><div class="form-group"><label>Password</label><input type="password" id="wifi-pass" placeholder="WiFi password"></div><button type="submit" class="btn btn-primary">Save WiFi</button></form></div>
+                <div class="settings-section"><h3>MikroTik Router</h3><form id="mikrotik-form"><div class="form-group"><label>Router IP</label><input type="text" id="mt-host" placeholder="192.168.1.1"></div><div class="form-group"><label>API Port</label><input type="number" id="mt-port" value="8728"></div><div class="form-group"><label>Username</label><input type="text" id="mt-user"></div><div class="form-group"><label>Password</label><input type="password" id="mt-pass"></div><div class="form-actions"><button type="submit" class="btn btn-primary">Save</button><button type="button" class="btn btn-secondary" onclick="testMikroTik()">Test Connection</button></div></form></div>
+                <div class="settings-section"><h3>Coin Settings</h3><form id="coin-form"><div class="form-row"><div class="form-group"><label>Coins per Pulse</label><input type="number" id="coin-cpp" min="1" value="1"></div><div class="form-group"><label>Minimum Coins</label><input type="number" id="coin-min" min="1" value="1"></div><div class="form-group"><label>Maximum Coins</label><input type="number" id="coin-max" min="1" value="100"></div></div><button type="submit" class="btn btn-primary">Save</button></form></div>
+                <div class="settings-section"><h3>Security</h3><form id="password-form"><div class="form-group"><label>Current Password</label><input type="password" id="pass-current" required></div><div class="form-group"><label>New Password</label><input type="password" id="pass-new" required minlength="4"></div><div class="form-group"><label>Confirm New Password</label><input type="password" id="pass-confirm" required></div><button type="submit" class="btn btn-primary">Change Password</button></form></div>
+                <div class="settings-section danger-zone"><h3>Danger Zone</h3><button class="btn btn-warning" onclick="rebootSystem()">Reboot System</button><button class="btn btn-danger" onclick="factoryReset()">Factory Reset</button></div>
             </section>
-
             <section id="history" class="tab-content">
                 <h2>Voucher History</h2>
-                <div class="actions">
-                    <button class="btn btn-secondary" onclick="loadHistory()">Refresh</button>
-                </div>
-                <div class="history-list" id="history-list">
-                    <p class="empty-state">No vouchers generated yet</p>
-                </div>
+                <div class="actions"><button class="btn btn-secondary" onclick="loadHistory()">Refresh</button></div>
+                <div class="history-list" id="history-list"><p class="empty-state">No vouchers generated yet</p></div>
             </section>
         </main>
-
-        <footer>
-            <p>CoinGate ESP32 v1.0 | <span id="uptime">0:00:00</span></p>
-        </footer>
+        <footer><p>CoinGate ESP32 v1.0 | <span id="uptime">0:00:00</span></p></footer>
     </div>
-
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <h2 id="modal-title">Modal</h2>
-            <p id="modal-message"></p>
-            <div id="modal-actions"></div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+    <div id="modal" class="modal"><div class="modal-content"><h2 id="modal-title">Modal</h2><p id="modal-message"></p><div id="modal-actions"></div></div></div>
+<script>
+const API='';let wizardStep=1,systemConfig=null;
+document.addEventListener('DOMContentLoaded',async function(){await checkSetup();initTabs();loadDashboard();setInterval(loadDashboard,5000);document.getElementById('wifi-form').addEventListener('submit',saveWifi);document.getElementById('mikrotik-form').addEventListener('submit',saveMikroTik);document.getElementById('coin-form').addEventListener('submit',saveCoinSettings);document.getElementById('password-form').addEventListener('submit',changePassword)});
+async function checkSetup(){try{const res=await fetch(API+'/api/config');systemConfig=await res.json();if(!systemConfig.setup_done){document.getElementById('setup-wizard').style.display='block';document.getElementById('main-tabs').style.display='none';document.getElementById('main-content').style.display='none';}else{loadConfig();}}catch(err){console.error('Setup check failed:',err);}}
+function initTabs(){document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');if(btn.dataset.tab==='dashboard')loadDashboard();if(btn.dataset.tab==='sales')loadSales();if(btn.dataset.tab==='history')loadHistory();})});}
+async function loadDashboard(){try{const res=await fetch(API+'/api/status');const data=await res.json();document.getElementById('stat-wifi').textContent=data.wifi?'Connected':'Disconnected';document.getElementById('stat-wifi').className='stat-value '+(data.wifi?'success':'error');document.getElementById('stat-mt').textContent=data.mt_conn?'Connected':'Disconnected';document.getElementById('stat-mt').className='stat-value '+(data.mt_conn?'success':'error');document.getElementById('stat-daily-v').textContent=data.daily_vouchers||0;document.getElementById('stat-daily-p').textContent=data.daily_pulses||0;document.getElementById('current-pulses').textContent=data.pulses_session||0;const duration=calculateDuration(data.pulses_session||0,data.cpp||1);document.getElementById('current-duration').textContent=formatDuration(duration);document.getElementById('total-v').textContent=data.total_vouchers||0;document.getElementById('total-p').textContent=data.total_pulses||0;document.getElementById('abuse-status').textContent=data.cooldown?'Cooldown':(data.suspicious>10?'Warning':'OK');const s=data.uptime||0;document.getElementById('uptime').textContent=`${Math.floor(s/3600)}:${Math.floor((s%3600)/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;}catch(err){console.error('Dashboard load failed:',err);}}
+async function loadSales(){try{const res=await fetch(API+'/api/sales');const data=await res.json();document.getElementById('sales-daily-v').textContent=data.daily_vouchers||0;document.getElementById('sales-daily-p').textContent=data.daily_pulses||0;document.getElementById('sales-total-v').textContent=data.total_vouchers||0;document.getElementById('sales-total-p').textContent=data.total_pulses||0;}catch(err){console.error('Sales load failed:',err);}}
+async function loadHistory(){try{const res=await fetch(API+'/api/history');const data=await res.json();const list=document.getElementById('history-list');if(!data||data.length===0){list.innerHTML='<p class="empty-state">No vouchers generated yet</p>';return;}let html='';data.slice().reverse().forEach(v=>{const t=new Date(v.created_at*1000).toLocaleString();html+=`<div class="history-item"><span class="username">${v.username}</span><span class="password">${v.password}</span><span class="duration">${formatDuration(v.duration)}</span><span class="time">${t}</span></div>`;});list.innerHTML=html;}catch(err){console.error('History load failed:',err);document.getElementById('history-list').innerHTML='<p class="empty-state">Failed to load history</p>';}}
+async function loadConfig(){try{const res=await fetch(API+'/api/config');const data=await res.json();document.getElementById('wifi-ssid').value=data.wifi_ssid||'';document.getElementById('mt-host').value=data.mt_host||'';document.getElementById('mt-port').value=data.mt_port||8728;document.getElementById('mt-user').value=data.mt_user||'';document.getElementById('coin-cpp').value=data.cpp||1;document.getElementById('coin-min').value=data.min||1;document.getElementById('coin-max').value=data.max||100;}catch(err){console.error('Config load failed:',err);}}
+async function generateVoucher(){try{const res=await fetch(API+'/api/voucher',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});const data=await res.json();if(data.success){showModal('Voucher Generated!',`Username: ${data.username}<br>Password: ${data.password}<br>Duration: ${formatDuration(data.duration)}`);loadDashboard();}else{showModal('Error',data.error||'Failed to generate voucher');}}catch(err){showModal('Error','Failed to generate voucher');}}
+async function generateManualVoucher(){const coins=parseInt(document.getElementById('voucher-coins').value)||10;try{const res=await fetch(API+'/api/voucher',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({coins:coins})});const data=await res.json();if(data.success){document.getElementById('v-username').textContent=data.username;document.getElementById('v-password').textContent=data.password;document.getElementById('v-duration').textContent=formatDuration(data.duration);document.getElementById('voucher-result').style.display='block';document.querySelector('.voucher-generator').style.display='none';loadDashboard();}else{showModal('Error',data.error||'Failed to generate voucher');}}catch(err){showModal('Error','Failed to generate voucher');}}
+function clearVoucher(){document.getElementById('voucher-result').style.display='none';document.querySelector('.voucher-generator').style.display='block';document.getElementById('voucher-coins').value=10;}
+async function resetSession(){if(!confirm('Reset current session?'))return;await fetch(API+'/api/reset',{method:'POST'});loadDashboard();}
+async function resetDailySales(){if(!confirm('Reset daily sales counter?'))return;await fetch(API+'/api/sales/reset',{method:'POST'});loadSales();}
+async function saveWifi(e){e.preventDefault();const formData=new URLSearchParams();formData.append('ssid',document.getElementById('wifi-ssid').value);const pass=document.getElementById('wifi-pass').value;if(pass)formData.append('password',pass);await fetch(API+'/api/wifi',{method:'POST',body:formData});showModal('Saved','WiFi settings saved. Reconnecting...');}
+async function saveMikroTik(e){e.preventDefault();const config={host:document.getElementById('mt-host').value,port:parseInt(document.getElementById('mt-port').value),username:document.getElementById('mt-user').value,password:document.getElementById('mt-pass').value};const res=await fetch(API+'/api/mikrotik',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(config)});const data=await res.json();showModal(data.success?'Saved':'Error',data.success?'MikroTik settings saved.':data.error||'Failed to save');}
+async function testMikroTik(){showModal('Testing...','Testing MikroTik connection...');const res=await fetch(API+'/api/mikrotik/test',{method:'POST'});const data=await res.json();showModal(data.success?'Success':'Error',data.message||data.error);}
+async function saveCoinSettings(e){e.preventDefault();const config={cpp:parseInt(document.getElementById('coin-cpp').value),min:parseInt(document.getElementById('coin-min').value),max:parseInt(document.getElementById('coin-max').value)};await fetch(API+'/api/coin/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(config)});showModal('Saved','Coin settings saved.');}
+async function changePassword(e){e.preventDefault();const cur=document.getElementById('pass-current').value;const np=document.getElementById('pass-new').value;const cf=document.getElementById('pass-confirm').value;if(np!==cf){showModal('Error','Passwords do not match');return;}const res=await fetch(API+'/api/password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({current:cur,new:np})});const data=await res.json();if(data.success){document.getElementById('password-form').reset();showModal('Success','Password changed successfully');}else{showModal('Error',data.error||'Failed to change password');}}
+async function rebootSystem(){if(!confirm('Reboot the system?'))return;showModal('Rebooting','System is rebooting...');await fetch(API+'/api/reboot',{method:'POST'});}
+async function factoryReset(){if(!confirm('Factory reset will erase all settings. Continue?'))return;if(!confirm('This cannot be undone. Are you absolutely sure?'))return;showModal('Resetting','Factory reset in progress...');await fetch(API+'/api/factory_reset',{method:'POST'});}
+function wizardNext(){document.querySelector(`.wizard-step[data-step="${wizardStep}"]`).classList.remove('active');wizardStep++;document.querySelector(`.wizard-step[data-step="${wizardStep}"]`).classList.add('active');}
+function wizardPrev(){document.querySelector(`.wizard-step[data-step="${wizardStep}"]`).classList.remove('active');wizardStep--;document.querySelector(`.wizard-step[data-step="${wizardStep}"]`).classList.add('active');}
+async function wizardSaveWifi(){const ssid=document.getElementById('w-wifi-ssid').value;const pass=document.getElementById('w-wifi-pass').value;if(!ssid){showModal('Error','Please enter WiFi SSID');return;}const formData=new URLSearchParams();formData.append('ssid',ssid);if(pass)formData.append('password',pass);await fetch(API+'/api/wifi',{method:'POST',body:formData});wizardNext();}
+async function wizardSaveMikroTik(){const config={host:document.getElementById('w-mt-host').value,port:parseInt(document.getElementById('w-mt-port').value)||8728,username:document.getElementById('w-mt-user').value,password:document.getElementById('w-mt-pass').value};if(!config.host||!config.username){showModal('Error','Please fill in all MikroTik fields');return;}await fetch(API+'/api/mikrotik',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(config)});wizardNext();}
+async function wizardSavePassword(){const p1=document.getElementById('w-admin-pass').value;const p2=document.getElementById('w-admin-pass2').value;if(!p1||p1.length<4){showModal('Error','Password must be at least 4 characters');return;}if(p1!==p2){showModal('Error','Passwords do not match');return;}await fetch(API+'/api/password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({current:'admin',new:p1})});await fetch(API+'/api/setup',{method:'POST'});document.getElementById('setup-wizard').style.display='none';document.getElementById('main-tabs').style.display='flex';document.getElementById('main-content').style.display='block';loadConfig();}
+function showModal(t,m){document.getElementById('modal-title').textContent=t;document.getElementById('modal-message').innerHTML=m;document.getElementById('modal-actions').innerHTML='<button class="btn btn-primary" onclick="closeModal()">OK</button>';document.getElementById('modal').classList.add('active');}
+function closeModal(){document.getElementById('modal').classList.remove('active');}
+function calculateDuration(c,p){return Math.floor((c/p)*600);}
+function formatDuration(s){if(s<60)return`${s} sec`;if(s<3600)return`${Math.floor(s/60)} min`;const h=Math.floor(s/3600);const m=Math.floor((s%3600)/60);return m>0?`${h}h ${m}m`:`${h} hour${h>1?'s':''}`;}
+</script>
 </body>
 </html>
