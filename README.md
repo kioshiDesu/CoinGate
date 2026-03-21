@@ -89,6 +89,10 @@ coingate/
 
 Access at `http://<esp32-ip>` or connect to AP mode (`CoinGate_Setup`).
 
+**Default AP Credentials:**
+- **SSID:** CoinGate_Setup
+- **Password:** CoinGate123
+
 Tabs:
 - **Status**: Real-time system info
 - **WiFi**: Network configuration
@@ -102,6 +106,12 @@ Tabs:
 - Pulse spacing validation
 - Cooldown periods after suspicious activity
 - NVS-encrypted credential storage
+
+### Default Credentials
+| Service | Username | Password |
+|---------|----------|----------|
+| Admin Panel | admin | admin |
+| WiFi AP Mode | - | CoinGate123 |
 
 ## Development
 
