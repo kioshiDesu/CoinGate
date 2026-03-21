@@ -13,9 +13,6 @@ idf_component_register(SRCS
 # Create SPIFFS image from web_interface directory
 set(WEB_INTERFACE_DIR ${CMAKE_SOURCE_DIR}/web_interface)
 set(SPIFFS_IMAGE_DIR ${CMAKE_BINARY_DIR}/spiffs_image)
-set(SPIFFS_PARTITION_SIZE 0x10000)
-set(SPIFFS_PAGE_SIZE 256)
-set(SPIFFS_BLOCK_SIZE 4096)
 
 # Create directory for SPIFFS files
 file(MAKE_DIRECTORY ${SPIFFS_IMAGE_DIR})
@@ -23,26 +20,26 @@ file(MAKE_DIRECTORY ${SPIFFS_IMAGE_DIR})
 # Copy web files to staging directory
 if(EXISTS ${WEB_INTERFACE_DIR})
     file(GLOB_RECURSE WEB_FILES "${WEB_INTERFACE_DIR}/*")
+    
     foreach(FILE ${WEB_FILES})
-        file(COPY ${FILE} DESTINATION ${SPIFFS_IMAGE_DIR})
+        get_filename_component(FILE_NAME ${FILE} NAME)
+        configure_file(${FILE} ${SPIFFS_IMAGE_DIR}/${FILE_NAME} COPYONLY)
     endforeach()
     
-    # Create SPIFFS image using spiffsgen.py
+    message(STATUS "SPIFFS files copied to ${SPIFFS_IMAGE_DIR}")
+    
+    # Create SPIFFS image
     add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/spiffs.bin
         COMMAND python3 ${IDF_PATH}/components/spiffs/spiffsgen.py
-            ${SPIFFS_PARTITION_SIZE}
+            0x10000
             ${SPIFFS_IMAGE_DIR}
             ${CMAKE_BINARY_DIR}/spiffs.bin
-            --page-size ${SPIFFS_PAGE_SIZE}
-            --block-size ${SPIFFS_BLOCK_SIZE}
         DEPENDS ${WEB_FILES}
-        COMMENT "Creating SPIFFS image from web_interface"
+        COMMENT "Creating SPIFFS image"
         VERBATIM
     )
     
-    # Add custom target for SPIFFS
     add_custom_target(spiffs_image ALL
         DEPENDS ${CMAKE_BINARY_DIR}/spiffs.bin
-        COMMENT "Building SPIFFS image"
     )
 endif()
