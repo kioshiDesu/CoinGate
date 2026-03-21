@@ -703,8 +703,16 @@ static esp_err_t api_sales_reset_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-static const httpd_uri_t get_any = {
-    .uri = "/*", .method = HTTP_GET, .handler = get_file_handler
+static const httpd_uri_t get_root = {
+    .uri = "/", .method = HTTP_GET, .handler = get_file_handler
+};
+
+static const httpd_uri_t get_setup = {
+    .uri = "/setup", .method = HTTP_GET, .handler = get_file_handler
+};
+
+static const httpd_uri_t get_index_html = {
+    .uri = "/index.html", .method = HTTP_GET, .handler = get_file_handler
 };
 
 static const httpd_uri_t api_status = {
@@ -785,7 +793,12 @@ httpd_handle_t start_webserver(void)
         return NULL;
     }
 
-    // Register API handlers FIRST (must be before catch-all)
+    // Register static file handlers FIRST (specific routes)
+    httpd_register_uri_handler(s_server, &get_root);
+    httpd_register_uri_handler(s_server, &get_setup);
+    httpd_register_uri_handler(s_server, &get_index_html);
+
+    // Register API handlers (specific routes)
     httpd_register_uri_handler(s_server, &api_status);
     httpd_register_uri_handler(s_server, &api_rates);
     httpd_register_uri_handler(s_server, &api_voucher);
@@ -803,9 +816,6 @@ httpd_handle_t start_webserver(void)
     httpd_register_uri_handler(s_server, &api_coin_config);
     httpd_register_uri_handler(s_server, &api_sales);
     httpd_register_uri_handler(s_server, &api_sales_reset);
-
-    // Register catch-all handler LAST (serves all static files and SPA fallback)
-    httpd_register_uri_handler(s_server, &get_any);
 
     ESP_LOGI(TAG, "Web server started");
     return s_server;
