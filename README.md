@@ -31,9 +31,35 @@ An open-source ESP32 firmware for coin-operated Wi-Fi vending machines, inspired
 idf.py set-target esp32
 idf.py build
 
-# Flash and monitor
+# Flash all partitions
 idf.py flash monitor
 ```
+
+## Flashing via esptool.py (Manual)
+
+If flashing manually or from GitHub releases, flash each partition:
+
+```bash
+esptool.py --chip esp32 --port /dev/ttyUSB0 write_flash \
+  0x1000 build/bootloader/bootloader.bin \
+  0x8000 build/partition_table/partition-table.bin \
+  0x10000 build/coingate.bin \
+  0x1F0000 build/spiffs.bin
+```
+
+### Partition Map (2MB Flash)
+
+| Partition | Address | Size | Description |
+|-----------|---------|------|-------------|
+| bootloader | 0x1000 | 48KB | ESP32 bootloader |
+| partition-table | 0x8000 | 8KB | Partition layout |
+| nvs | 0x9000 | 16KB | NVS storage |
+| otadata | 0xD000 | 8KB | OTA data |
+| app0 | 0x10000 | 960KB | Main application |
+| app1 | 0x100000 | 960KB | OTA backup slot |
+| spiffs | 0x1F0000 | 64KB | Web interface files |
+
+**Note:** Flash the entire firmware using `idf.py flash` or manually flash each partition above. The `spiffs.bin` contains the web interface and must be flashed for the admin panel to work.
 
 ## Project Structure
 
