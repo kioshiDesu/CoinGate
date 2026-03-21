@@ -51,6 +51,12 @@ static esp_err_t serve_file(httpd_req_t *req, const char *file_path)
 
 static esp_err_t get_file_handler(httpd_req_t *req)
 {
+    // Skip API routes - they should be handled by specific handlers
+    if (strncmp(req->uri, "/api", 4) == 0) {
+        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "API endpoint not found");
+        return ESP_FAIL;
+    }
+
     char filepath[FILE_PATH_MAX];
 
     if (strcmp(req->uri, "/") == 0 || strcmp(req->uri, "/setup") == 0) {
@@ -772,7 +778,7 @@ httpd_handle_t start_webserver(void)
         return NULL;
     }
 
-    httpd_register_uri_handler(s_server, &get_file);
+    // Register API handlers FIRST (specific routes)
     httpd_register_uri_handler(s_server, &api_status);
     httpd_register_uri_handler(s_server, &api_rates);
     httpd_register_uri_handler(s_server, &api_voucher);
@@ -790,6 +796,9 @@ httpd_handle_t start_webserver(void)
     httpd_register_uri_handler(s_server, &api_coin_config);
     httpd_register_uri_handler(s_server, &api_sales);
     httpd_register_uri_handler(s_server, &api_sales_reset);
+
+    // Register catch-all handler LAST (for static files)
+    httpd_register_uri_handler(s_server, &get_file);
 
     ESP_LOGI(TAG, "Web server started");
     return s_server;
