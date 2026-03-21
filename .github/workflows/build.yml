@@ -39,15 +39,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Delete existing tag
-        run: git push origin :refs/tags/coingate-latest || true
-
-      - name: Create new tag
-        run: git tag -f coingate-latest
-
-      - name: Push tag
-        run: git push origin coingate-latest --force
-
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -62,6 +53,7 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
+          overwrite: true
           files: |
             artifacts/bootloader.bin
             artifacts/partition-table.bin
