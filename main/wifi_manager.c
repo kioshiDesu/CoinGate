@@ -55,7 +55,7 @@ static void start_ap_mode(void)
         .ap = {
             .ssid = "CoinGate_Setup",
             .ssid_len = 0,
-            .password = "coingate123",
+            .password = "CoinGate123",
             .max_connection = 4,
             .authmode = WIFI_AUTH_WPA_WPA2_PSK
         }
