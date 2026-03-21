@@ -61,6 +61,60 @@ esptool.py --chip esp32 --port /dev/ttyUSB0 write_flash \
 
 **Note:** Flash the entire firmware using `idf.py flash` or manually flash each partition above. The `spiffs.bin` contains the web interface and must be flashed for the admin panel to work.
 
+## Mobile Flashing (Android)
+
+Flash CoinGate firmware using your Android phone - no PC needed!
+
+### Required
+- Android phone with USB OTG support
+- USB OTG cable
+- USB cable (ESP32 to phone)
+
+### Recommended Apps
+
+**ESP32_Flasher** ([Google Play](https://play.google.com/store/apps/details?id=com.esp_flash.esp_flash_app))
+- Free with ads
+- Supports multiple bin files with custom offsets
+- Auto bootloader mode
+- Built-in serial monitor
+
+**ESPFlash** ([Google Play](https://play.google.com/store/apps/details?id=io.serialflow.espflash))
+- Supports ESP32, ESP32-S2/S3/C3/C5/C6/H2, ESP8266
+- Flash & backup firmware
+- Serial monitor built-in
+
+### How to Flash from Phone
+
+1. **Download bin files** from GitHub Releases to your phone:
+   - `bootloader.bin`
+   - `partition-table.bin`
+   - `coingate.bin`
+   - `spiffs.bin`
+
+2. **Connect ESP32** to phone via USB OTG cable
+
+3. **Open ESP32_Flasher app** and select your device
+
+4. **Add bin files** with addresses:
+
+   | File | Offset |
+   |------|--------|
+   | bootloader.bin | 0x1000 |
+   | partition-table.bin | 0x8000 |
+   | coingate.bin | 0x10000 |
+   | spiffs.bin | 0x1F0000 |
+
+5. **Enter bootloader mode** (if not auto-detected):
+   - Hold BOOT button
+   - Press and release RST button
+   - Release BOOT button
+
+6. **Hit Flash** and wait for completion
+
+### OTA Updates (Wireless)
+
+After initial flash, use **ESP32 OTA BLE** ([Google Play](https://play.google.com/store/apps/details?id=com.fbiego.esp32.ota)) for wireless firmware updates via Bluetooth - no USB needed!
+
 ## Project Structure
 
 ```
