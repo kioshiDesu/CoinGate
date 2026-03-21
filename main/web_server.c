@@ -49,22 +49,6 @@ static esp_err_t serve_file(httpd_req_t *req, const char *file_path)
     return ESP_OK;
 }
 
-static esp_err_t root_handler(httpd_req_t *req)
-{
-    ESP_LOGI(TAG, "root_handler called for URI: %s", req->uri);
-    
-    FILE *file = fopen("/spiffs/index.html", "r");
-    if (file == NULL) {
-        ESP_LOGW(TAG, "index.html not found in SPIFFS");
-        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "index.html not found");
-        return ESP_FAIL;
-    }
-    fclose(file);
-    
-    httpd_resp_set_type(req, "text/html");
-    return serve_file(req, "/spiffs/index.html");
-}
-
 static esp_err_t get_file_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "get_file_handler called for URI: %s", req->uri);
