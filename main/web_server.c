@@ -786,19 +786,31 @@ static const httpd_uri_t api_sales_reset = {
 httpd_handle_t start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.stack_size = 4096;
+    config.stack_size = 8192;
+    config.lru_purge_enable = true;
+    config.max_uri_handlers = 32;
+    config.max_resp_size = 4096;
 
-    if (httpd_start(&s_server, &config) != ESP_OK) {
+    s_server = httpd_start(&s_server, &config);
+    if (s_server == NULL) {
         ESP_LOGE(TAG, "Failed to start server");
         return NULL;
     }
 
-    // Register static file handlers FIRST (specific routes)
-    httpd_register_uri_handler(s_server, &get_root);
-    httpd_register_uri_handler(s_server, &get_setup);
-    httpd_register_uri_handler(s_server, &get_index_html);
+    ESP_LOGI(TAG, "Registering URI handlers...");
 
-    // Register API handlers (specific routes)
+    // Register static file handlers FIRST
+    if (httpd_register_uri_handler(s_server, &get_root) != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to register get_root");
+    }
+    if (httpd_register_uri_handler(s_server, &get_setup) != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to register get_setup");
+    }
+    if (httpd_register_uri_handler(s_server, &get_index_html) != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to register get_index_html");
+    }
+
+    // Register API handlers
     httpd_register_uri_handler(s_server, &api_status);
     httpd_register_uri_handler(s_server, &api_rates);
     httpd_register_uri_handler(s_server, &api_voucher);
@@ -817,7 +829,7 @@ httpd_handle_t start_webserver(void)
     httpd_register_uri_handler(s_server, &api_sales);
     httpd_register_uri_handler(s_server, &api_sales_reset);
 
-    ESP_LOGI(TAG, "Web server started");
+    ESP_LOGI(TAG, "Web server started on port %d", config.server_port);
     return s_server;
 }
 
