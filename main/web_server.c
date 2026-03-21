@@ -696,6 +696,10 @@ static esp_err_t api_sales_reset_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+static const httpd_uri_t get_root = {
+    .uri = "/", .method = HTTP_GET, .handler = get_file_handler
+};
+
 static const httpd_uri_t get_file = {
     .uri = "/*", .method = HTTP_GET, .handler = get_file_handler
 };
@@ -778,7 +782,10 @@ httpd_handle_t start_webserver(void)
         return NULL;
     }
 
-    // Register API handlers FIRST (specific routes)
+    // Register root handler FIRST
+    httpd_register_uri_handler(s_server, &get_root);
+
+    // Register API handlers (specific routes)
     httpd_register_uri_handler(s_server, &api_status);
     httpd_register_uri_handler(s_server, &api_rates);
     httpd_register_uri_handler(s_server, &api_voucher);
@@ -797,7 +804,7 @@ httpd_handle_t start_webserver(void)
     httpd_register_uri_handler(s_server, &api_sales);
     httpd_register_uri_handler(s_server, &api_sales_reset);
 
-    // Register catch-all handler LAST (for static files)
+    // Register catch-all handler LAST (for static files like /style.css, /script.js)
     httpd_register_uri_handler(s_server, &get_file);
 
     ESP_LOGI(TAG, "Web server started");
@@ -826,7 +833,19 @@ esp_err_t web_server_start(void)
         return ret;
     }
 
+    ESP_LOGI(TAG, "SPIFFS mounted successfully");
+
+    // Check if index.html exists
+    FILE *f = fopen("/spiffs/index.html", "r");
+    if (f) {
+        ESP_LOGI(TAG, "index.html found in SPIFFS");
+        fclose(f);
+    } else {
+        ESP_LOGW(TAG, "index.html NOT found in SPIFFS!");
+    }
+
     start_webserver();
+    ESP_LOGI(TAG, "Web server running. Access at http://192.168.4.1");
     return ESP_OK;
 }
 
