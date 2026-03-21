@@ -51,10 +51,11 @@ static esp_err_t serve_file(httpd_req_t *req, const char *file_path)
 
 static esp_err_t get_file_handler(httpd_req_t *req)
 {
-    char filepath[FILE_PATH_MAX];
-    char full_uri[FILE_PATH_MAX];
+    char filepath[300];
+    char full_uri[256];
 
     strncpy(full_uri, req->uri, sizeof(full_uri) - 1);
+    full_uri[sizeof(full_uri) - 1] = '\0';
 
     // Skip API routes - they should be handled by specific handlers
     if (strncmp(full_uri, "/api", 4) == 0) {
