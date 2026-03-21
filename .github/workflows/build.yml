@@ -20,9 +20,6 @@ jobs:
           idf.py set-target esp32
           idf.py build
 
-      - name: List build artifacts
-        run: find build -name "*.bin" -type f
-
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -30,7 +27,7 @@ jobs:
           path: |
             build/bootloader/bootloader.bin
             build/partition_table/partition-table.bin
-            build/*.bin
+            build/coingate.bin
 
   release:
     needs: build
@@ -42,24 +39,48 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Get previous release tag
+        id: prev_tag
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Calculate next version
+        id: version
+        run: |
+          PREV=${{ steps.prev_tag.outputs.tag }}
+          # Strip v prefix and split
+          MINOR=$(echo $PREV | cut -d. -f2)
+          PATCH=$(echo $PREV | cut -d. -f3)
+          PATCH=$((PATCH + 1))
+          TAG="v1.${MINOR:-0}.${PATCH:-0}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "num=$PATCH" >> $GITHUB_OUTPUT
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: coingate-firmware
           path: artifacts
 
-      - name: List artifacts
-        run: ls -la artifacts/
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: coingate-latest
-          name: CoinGate Firmware (Latest Build)
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: CoinGate Firmware ${{ steps.version.outputs.tag }}
+          body: |
+            ## CoinGate ESP32 Firmware
+
+            ### Binaries
+            - **bootloader.bin** - ESP32 bootloader
+            - **partition-table.bin** - Partition table
+            - **coingate.bin** - Main firmware
+
+            ### Build Info
+            - **Commit:** ${{ github.sha }}
+            - **Build:** ${{ github.run_number }} (Patch #${{ steps.version.outputs.num }})
           draft: false
           prerelease: false
-          generate_release_notes: true
-          overwrite_files: true
           files: |
             artifacts/bootloader.bin
             artifacts/partition-table.bin
