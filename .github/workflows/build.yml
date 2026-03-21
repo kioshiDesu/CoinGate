@@ -26,6 +26,7 @@ jobs:
           cp build/bootloader/bootloader.bin artifacts/
           cp build/partition_table/partition-table.bin artifacts/
           cp build/coingate.bin artifacts/
+          cp build/spiffs.bin artifacts/ 2>/dev/null || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -87,3 +88,4 @@ jobs:
             artifacts/bootloader.bin
             artifacts/partition-table.bin
             artifacts/coingate.bin
+            artifacts/spiffs.bin

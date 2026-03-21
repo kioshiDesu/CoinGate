@@ -13,7 +13,7 @@ idf_component_register(SRCS
 # Create SPIFFS image from web_interface directory
 set(WEB_INTERFACE_DIR ${CMAKE_SOURCE_DIR}/web_interface)
 set(SPIFFS_IMAGE_DIR ${CMAKE_BINARY_DIR}/spiffs_image)
-set(SPIFFS_PARTITION_SIZE 0x160000)
+set(SPIFFS_PARTITION_SIZE 0x10000)
 
 # Create directory for SPIFFS files
 file(MAKE_DIRECTORY ${SPIFFS_IMAGE_DIR})
@@ -25,7 +25,7 @@ if(EXISTS ${WEB_INTERFACE_DIR})
         file(COPY ${FILE} DESTINATION ${SPIFFS_IMAGE_DIR})
     endforeach()
     
-    # Create SPIFFS image using mkspiffs (ESP-IDF tool)
+    # Create SPIFFS image using spiffsgen.py
     add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/spiffs.bin
         COMMAND python3 ${IDF_PATH}/components/spiffs/spiffsgen.py
             ${SPIFFS_PARTITION_SIZE}
