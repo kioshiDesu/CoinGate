@@ -20,14 +20,18 @@ jobs:
           idf.py set-target esp32
           idf.py build
 
+      - name: Prepare artifacts
+        run: |
+          mkdir -p artifacts
+          cp build/bootloader/bootloader.bin artifacts/
+          cp build/partition_table/partition-table.bin artifacts/
+          cp build/coingate.bin artifacts/
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: coingate-firmware
-          path: |
-            build/bootloader/bootloader.bin
-            build/partition_table/partition-table.bin
-            build/coingate.bin
+          path: artifacts/*
 
   release:
     needs: build
@@ -49,13 +53,11 @@ jobs:
         id: version
         run: |
           PREV=${{ steps.prev_tag.outputs.tag }}
-          # Strip v prefix and split
           MINOR=$(echo $PREV | cut -d. -f2)
           PATCH=$(echo $PREV | cut -d. -f3)
           PATCH=$((PATCH + 1))
           TAG="v1.${MINOR:-0}.${PATCH:-0}"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "num=$PATCH" >> $GITHUB_OUTPUT
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -78,7 +80,7 @@ jobs:
 
             ### Build Info
             - **Commit:** ${{ github.sha }}
-            - **Build:** ${{ github.run_number }} (Patch #${{ steps.version.outputs.num }})
+            - **Build:** ${{ github.run_number }} (Patch #${{ steps.version.outputs.tag }})
           draft: false
           prerelease: false
           files: |
