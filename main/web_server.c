@@ -49,8 +49,26 @@ static esp_err_t serve_file(httpd_req_t *req, const char *file_path)
     return ESP_OK;
 }
 
+static esp_err_t root_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "root_handler called for URI: %s", req->uri);
+    
+    FILE *file = fopen("/spiffs/index.html", "r");
+    if (file == NULL) {
+        ESP_LOGW(TAG, "index.html not found in SPIFFS");
+        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "index.html not found");
+        return ESP_FAIL;
+    }
+    fclose(file);
+    
+    httpd_resp_set_type(req, "text/html");
+    return serve_file(req, "/spiffs/index.html");
+}
+
 static esp_err_t get_file_handler(httpd_req_t *req)
 {
+    ESP_LOGI(TAG, "get_file_handler called for URI: %s", req->uri);
+    
     char filepath[300];
     char full_uri[256];
 
@@ -59,22 +77,25 @@ static esp_err_t get_file_handler(httpd_req_t *req)
 
     // Skip API routes - they should be handled by specific handlers
     if (strncmp(full_uri, "/api", 4) == 0) {
+        ESP_LOGW(TAG, "API route requested via catch-all: %s", full_uri);
         httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "API endpoint not found");
         return ESP_FAIL;
     }
 
     // For root or setup, serve index.html
-    if (strcmp(full_uri, "/") == 0 || strcmp(full_uri, "/setup") == 0) {
+    if (strcmp(full_uri, "/") == 0 || strcmp(full_uri, "/setup") == 0 || strcmp(full_uri, "/index.html") == 0) {
         strcpy(filepath, "/spiffs/index.html");
+        ESP_LOGI(TAG, "Serving index.html for: %s", full_uri);
     } else {
         // Build full path and try to serve the file
         snprintf(filepath, sizeof(filepath), "/spiffs%s", full_uri);
         
         struct stat st;
         if (stat(filepath, &st) == -1) {
-            // File not found - serve index.html (SPA fallback)
             ESP_LOGW(TAG, "File not found: %s, serving index.html", filepath);
             strcpy(filepath, "/spiffs/index.html");
+        } else {
+            ESP_LOGI(TAG, "Serving file: %s", filepath);
         }
     }
 
@@ -703,16 +724,27 @@ static esp_err_t api_sales_reset_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-static const httpd_uri_t get_root = {
-    .uri = "/", .method = HTTP_GET, .handler = get_file_handler
-};
+static esp_err_t root_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "root_handler called for URI: %s", req->uri);
+    
+    FILE *file = fopen("/spiffs/index.html", "r");
+    if (file == NULL) {
+        ESP_LOGW(TAG, "index.html not found in SPIFFS");
+        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "index.html not found");
+        return ESP_FAIL;
+    }
+    fclose(file);
+    
+    httpd_resp_set_type(req, "text/html");
+    return serve_file(req, "/spiffs/index.html");
+}
 
-static const httpd_uri_t get_setup = {
-    .uri = "/setup", .method = HTTP_GET, .handler = get_file_handler
-};
-
-static const httpd_uri_t get_index_html = {
-    .uri = "/index.html", .method = HTTP_GET, .handler = get_file_handler
+static const httpd_uri_t get_catchall = {
+    .uri = "/*",
+    .method = HTTP_GET,
+    .handler = root_handler,
+    .user_ctx = NULL
 };
 
 static const httpd_uri_t api_status = {
@@ -791,45 +823,43 @@ httpd_handle_t start_webserver(void)
     config.max_uri_handlers = 32;
     config.max_resp_size = 4096;
 
-    s_server = httpd_start(&s_server, &config);
-    if (s_server == NULL) {
-        ESP_LOGE(TAG, "Failed to start server");
+    httpd_handle_t server = NULL;
+    esp_err_t err = httpd_start(&server, &config);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to start HTTP server: %s", esp_err_to_name(err));
         return NULL;
     }
+    s_server = server;
+    ESP_LOGI(TAG, "HTTP server started successfully");
 
-    ESP_LOGI(TAG, "Registering URI handlers...");
+    ESP_LOGI(TAG, "Registering handlers...");
+    
+    // Register API handlers FIRST (more specific URIs)
+#define REG(h) do { err = httpd_register_uri_handler(s_server, &(h)); ESP_LOGI(TAG, "Register %s: %s", (h).uri, esp_err_to_name(err)); } while(0)
+    
+    REG(api_status);
+    REG(api_rates);
+    REG(api_voucher);
+    REG(api_coin);
+    REG(api_config);
+    REG(api_wifi);
+    REG(api_mikrotik);
+    REG(api_mikrotik_test);
+    REG(api_history);
+    REG(api_reset);
+    REG(api_password);
+    REG(api_setup);
+    REG(api_reboot);
+    REG(api_factory_reset);
+    REG(api_coin_config);
+    REG(api_sales);
+    REG(api_sales_reset);
+    
+    // Register catch-all for static files (handles /, /setup, /index.html, etc.)
+    REG(get_catchall);
+#undef REG
 
-    // Register static file handlers FIRST
-    if (httpd_register_uri_handler(s_server, &get_root) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to register get_root");
-    }
-    if (httpd_register_uri_handler(s_server, &get_setup) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to register get_setup");
-    }
-    if (httpd_register_uri_handler(s_server, &get_index_html) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to register get_index_html");
-    }
-
-    // Register API handlers
-    httpd_register_uri_handler(s_server, &api_status);
-    httpd_register_uri_handler(s_server, &api_rates);
-    httpd_register_uri_handler(s_server, &api_voucher);
-    httpd_register_uri_handler(s_server, &api_coin);
-    httpd_register_uri_handler(s_server, &api_config);
-    httpd_register_uri_handler(s_server, &api_wifi);
-    httpd_register_uri_handler(s_server, &api_mikrotik);
-    httpd_register_uri_handler(s_server, &api_mikrotik_test);
-    httpd_register_uri_handler(s_server, &api_history);
-    httpd_register_uri_handler(s_server, &api_reset);
-    httpd_register_uri_handler(s_server, &api_password);
-    httpd_register_uri_handler(s_server, &api_setup);
-    httpd_register_uri_handler(s_server, &api_reboot);
-    httpd_register_uri_handler(s_server, &api_factory_reset);
-    httpd_register_uri_handler(s_server, &api_coin_config);
-    httpd_register_uri_handler(s_server, &api_sales);
-    httpd_register_uri_handler(s_server, &api_sales_reset);
-
-    ESP_LOGI(TAG, "Web server started on port %d", config.server_port);
+    ESP_LOGI(TAG, "Web server fully initialized. All handlers registered.");
     return s_server;
 }
 
